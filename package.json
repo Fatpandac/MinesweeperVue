@@ -5,14 +5,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
-    "vue": "^3.2.25"
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.15"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",
+    "prettier": "^2.6.2",
     "unocss": "^0.33.4",
-    "vite": "^2.9.9"
+    "vite": "^2.9.9",
+    "yorkie": "^2.0.0"
+  },
+  "gitHooks": {
+    "pre-commit": "npm run prettier"
   }
 }
