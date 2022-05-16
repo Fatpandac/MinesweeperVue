@@ -1,6 +1,8 @@
 <template>
-  <!-- <div @click="show">Show All</div> -->
-  <div class="grid gap-1" :class="[`grid-cols-${groundCol}`]">
+  <div
+    class="w-90 md:w-150 lg:w-200 h-90 md:h-150 lg:h-200 grid gap-1 transition-all"
+    :class="[`grid-cols-${groundCol}`]"
+  >
     <template v-for="(list, index) of feildsList" :key="index">
       <feild
         v-bind="{ type, col, row, scaned, sign }"
@@ -17,14 +19,14 @@
 import Feild from '../atoms/Feild.vue';
 
 import { level } from '@/data/Minesweeper.js';
-import { onMounted, ref } from '@vue/runtime-core';
+import { onMounted, ref, watch } from '@vue/runtime-core';
 
-const chooseLevel = 1;
-
-const groundCol = level[chooseLevel].col;
-const groundRow = level[chooseLevel].row;
-const groundMines = level[chooseLevel].mines;
-const groundFeildSum = groundCol * groundRow;
+const props = defineProps({
+  chooseLevel: {
+    type: Number,
+    Request: true
+  }
+});
 
 const random = (max, min = 0) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -37,7 +39,10 @@ function loopGround(feildsList, func) {
 }
 
 const initFeildsList = (col, row, mines) => {
-  const feildsList = Array.from(Array(groundRow), () => new Array(groundCol));
+  const feildsList = Array.from(
+    Array(groundRow.value),
+    () => new Array(groundCol.value)
+  );
   const minesList = [];
 
   // init minesList
@@ -76,9 +81,9 @@ const initFeildsList = (col, row, mines) => {
       for (var k = -1; k < 2; k++) {
         for (var h = -1; h < 2; h++) {
           if (k === 0 && h === 0) continue;
-          if (i + k < 0 || i + k >= groundCol) continue;
-          if (j + h < 0 || j + h >= groundRow) continue;
-          countAroundMines += feildsList[i + k][j + h].type === -1;
+          if (j + k < 0 || j + k >= groundCol.value) continue;
+          if (i + h < 0 || i + h >= groundRow.value) continue;
+          countAroundMines += feildsList[i + h][j + k].type === -1;
         }
       }
 
@@ -89,7 +94,29 @@ const initFeildsList = (col, row, mines) => {
   return feildsList;
 };
 
-const feildsList = ref(initFeildsList(groundCol, groundRow, groundMines));
+const groundCol = ref(level[props.chooseLevel].col);
+const groundRow = ref(level[props.chooseLevel].row);
+const groundMines = ref(level[props.chooseLevel].mines);
+
+const feildsList = ref(
+  initFeildsList(groundCol.value, groundRow.value, groundMines.value)
+);
+
+watch(
+  () => props.chooseLevel,
+  value => {
+    value--;
+    groundCol.value = level[value].col;
+    groundRow.value = level[value].row;
+    groundMines.value = level[value].mines;
+
+    feildsList.value = initFeildsList(
+      groundCol.value,
+      groundRow.value,
+      groundMines.value
+    );
+  }
+);
 
 const gameOver = () => {
   loopGround(feildsList.value, (i, j) => {
@@ -107,17 +134,19 @@ const scanWhiteFeild = (col, row) => {
     const row = whiteFeildPos[1];
     for (var k = -1; k < 2; k++) {
       for (var h = -1; h < 2; h++) {
-        if (k === 0 && h === 0) continue;
-        if (col + k < 0 || col + k >= groundCol) continue;
-        if (row + h < 0 || row + h >= groundRow) continue;
+        if ((k === 0 && h === 0) || k === h) continue;
+        if (col + k < 0 || col + k >= groundRow.value) continue;
+        if (row + h < 0 || row + h >= groundCol.value) continue;
 
         if (
           feildsList.value[col + k][row + h].type === 0 &&
           !feildsList.value[col + k][row + h].scaned
         ) {
           whiteFeildStack.push([col + k, row + h]);
+          feildsList.value[col][row].sign = false;
           feildsList.value[col + k][row + h].scaned = true;
         } else if (feildsList.value[col + k][row + h].type > 0) {
+          feildsList.value[col][row].sign = false;
           feildsList.value[col + k][row + h].scaned = true;
         }
       }
@@ -129,9 +158,11 @@ const scan = (col, row) => {
   if (feildsList.value[col][row].type === -1) gameOver();
   if (feildsList.value[col][row].type === 0) scanWhiteFeild(col, row);
   feildsList.value[col][row].scaned = true;
+  feildsList.value[col][row].sign = false;
 };
 
 const tag = (col, row) => {
+  if (feildsList.value[col][row].scaned) return;
   feildsList.value[col][row].sign = !feildsList.value[col][row].sign;
 };
 

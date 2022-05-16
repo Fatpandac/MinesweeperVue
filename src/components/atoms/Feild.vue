@@ -2,12 +2,15 @@
   <div
     @click="handle('scan')"
     @contextmenu.prevent="handle('tag')"
-    class="w-10 h-10 flex justify-center items-center select-none bg-cyan-300"
+    class="w-full h-full flex justify-center items-center select-none bg-cyan-300"
     :class="scaned && 'bg-red-300'"
   >
-    <span v-if="scaned || sign" class="text-sm">{{
-      processTypeToString()
-    }}</span>
+    <span
+      v-if="scaned || sign"
+      class="absolute text-sm"
+      :class="type == 0 && 'text-white'"
+      >{{ processTypeToString() }}</span
+    >
   </div>
 </template>
 
