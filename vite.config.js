@@ -8,7 +8,10 @@ export default defineConfig({
   plugins: [
     vue(),
     Unocss({
-      safelist: [...'grid-cols-8 grid-cols-16 grid-cols-30'.split(' ')]
+      safelist: [
+        ...'grid-cols-8 grid-cols-16 grid-cols-30'.split(' '),
+        'hidden'
+      ]
     })
   ],
   resolve: {

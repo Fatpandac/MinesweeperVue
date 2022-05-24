@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-90 md:w-150 lg:w-200 h-90 md:h-150 lg:h-200 grid gap-1 transition-all"
+    class="w-90 md:w-150 lg:w-200 h-90 md:h-150 lg:h-200 grid gap-1 transition-all max-h-[98%]"
     :class="[`grid-cols-${groundCol}`]"
   >
     <template v-for="(list, index) of feildsList" :key="index">
@@ -19,7 +19,7 @@
 import Feild from '../atoms/Feild.vue';
 
 import { level } from '@/data/Minesweeper.js';
-import { onMounted, ref, watch } from '@vue/runtime-core';
+import { ref, watch } from '@vue/runtime-core';
 
 const props = defineProps({
   chooseLevel: {
@@ -118,11 +118,14 @@ watch(
   }
 );
 
+const emits = defineEmits(['updateGameStatus']);
+
 const gameOver = () => {
   loopGround(feildsList.value, (i, j) => {
     feildsList.value[i][j].scaned = true;
     feildsList.value[i][j].sign = false;
   });
+  emits('updateGameStatus', false);
 };
 
 const scanWhiteFeild = (col, row) => {
@@ -155,10 +158,14 @@ const scanWhiteFeild = (col, row) => {
 };
 
 const scan = (col, row) => {
-  if (feildsList.value[col][row].type === -1) gameOver();
+  if (feildsList.value[col][row].type === -1) {
+    gameOver();
+    return;
+  }
   if (feildsList.value[col][row].type === 0) scanWhiteFeild(col, row);
   feildsList.value[col][row].scaned = true;
   feildsList.value[col][row].sign = false;
+  emits('updateGameStatus', true);
 };
 
 const tag = (col, row) => {

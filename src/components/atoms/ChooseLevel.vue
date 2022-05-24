@@ -1,5 +1,8 @@
 <template>
-  <ul class="m-4 flex flex-row p-0 lg:flex-col list-none">
+  <ul
+    :class="[disable ? 'hidden' : 'flex']"
+    class="m-4 flex-row p-0 lg:flex-col list-none"
+  >
     <li class="m-2">
       <input type="radio" id="1" :value="1" v-model="level" />
       <label for="1">1 Level</label>
@@ -21,6 +24,10 @@ import { ref, watch } from 'vue';
 defineProps({
   chooseLevel: {
     type: Number,
+    Request: true
+  },
+  disable: {
+    type: Boolean,
     Request: true
   }
 });
