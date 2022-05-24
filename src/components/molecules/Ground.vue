@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-90 md:w-150 lg:w-200 h-90 md:h-150 lg:h-200 grid gap-1 transition-all max-h-[98%]"
+    class="w-90 md:w-150 lg:w-200 h-90 md:h-150 lg:h-200 grid gap-1 transition-all max-h-[98%] relative"
     :class="[`grid-cols-${groundCol}`]"
   >
     <template v-for="(list, index) of feildsList" :key="index">
@@ -12,11 +12,16 @@
         :key="index"
       ></feild>
     </template>
+    <game-over-cover
+      :disable="disableGameOverCover"
+      @initGame="initGame"
+    ></game-over-cover>
   </div>
 </template>
 
 <script setup>
 import Feild from '../atoms/Feild.vue';
+import GameOverCover from '../atoms/GameOverCover.vue';
 
 import { level } from '@/data/Minesweeper.js';
 import { ref, watch } from '@vue/runtime-core';
@@ -27,6 +32,8 @@ const props = defineProps({
     Request: true
   }
 });
+
+const disableGameOverCover = ref(false);
 
 const random = (max, min = 0) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -44,6 +51,9 @@ const initFeildsList = (col, row, mines) => {
     () => new Array(groundCol.value)
   );
   const minesList = [];
+
+  // init gameover cover
+  disableGameOverCover.value = false;
 
   // init minesList
   while (minesList.length !== mines) {
@@ -97,10 +107,17 @@ const initFeildsList = (col, row, mines) => {
 const groundCol = ref(level[props.chooseLevel].col);
 const groundRow = ref(level[props.chooseLevel].row);
 const groundMines = ref(level[props.chooseLevel].mines);
+const feildsList = ref();
 
-const feildsList = ref(
-  initFeildsList(groundCol.value, groundRow.value, groundMines.value)
-);
+const initGame = () => {
+  feildsList.value = initFeildsList(
+    groundCol.value,
+    groundRow.value,
+    groundMines.value
+  );
+};
+
+initGame();
 
 watch(
   () => props.chooseLevel,
@@ -125,6 +142,7 @@ const gameOver = () => {
     feildsList.value[i][j].scaned = true;
     feildsList.value[i][j].sign = false;
   });
+  disableGameOverCover.value = true;
   emits('updateGameStatus', false);
 };
 

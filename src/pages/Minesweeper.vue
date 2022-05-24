@@ -5,7 +5,11 @@
       :disable="gameStatus"
       @updateLevel="updateLevel"
     ></choose-level>
-    <ground :chooseLevel="level" @updateGameStatus="updateGameStatus"></ground>
+    <ground
+      :chooseLevel="level"
+      :gameStatus="gameStatus"
+      @updateGameStatus="updateGameStatus"
+    ></ground>
   </main-layout>
 </template>
 
@@ -21,6 +25,7 @@ const gameStatus = ref(false);
 const updateGameStatus = change => {
   gameStatus.value = change;
 };
+
 const updateLevel = chooseLevel => {
   level.value = chooseLevel;
 };
